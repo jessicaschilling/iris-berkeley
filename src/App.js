@@ -29,7 +29,7 @@ class App extends Component {
             <img src="img/about.jpg" alt="Iris Berkeley" />
             <p><em>Things may come and things may go, but the art school dance goes on forever ...</em></p>
             <p>Iris Berkeley likes to connect the dots: between the music she grew up with and some fab new album from last week, between your favorite song and something you’ve never heard before, between local darlings and sounds from halfway around the world.</p>
-            <p>On the radio, find Iris on <a href="http://www.kgnu.org" target="_blank" rel="noopener noreferrer">KGNU-FM</a> and <a href="http://www.radio1190.org" target="_blank" rel="noopener noreferrer">Radio 1190</a> (geographically in Boulder, Colorado USA but of course streaming everywhere)</p>
+            <p>On the radio, find Iris on <a href="http://www.kgnu.org" target="_blank" rel="noopener noreferrer">KGNU-FM</a> and <a href="http://www.radio1190.org" target="_blank" rel="noopener noreferrer">Radio 1190</a> (geographically in Boulder, Colorado USA but of course streaming everywhere).</p>
             <p>In person, find Iris all over North America at anything from private parties to fashion events to dance festivals. She's tickled to jump on a plane, too; summer 2019 found her in residency on Susak, Croatia.</p>
             <p>Anything is fair game when she’s behind the decks, but no matter where it goes, it’ll be a fun ride. </p>
             <center><button onClick={()=>{ document.getElementById('text-about').style.display = 'none'; document.getElementById('grid-container').style.display = 'flex'; }}>Go back</button></center>
