@@ -51,7 +51,7 @@ class App extends Component {
 
           <div id="footer">
             <a target="_blank" rel="license noopener noreferrer" href="http://creativecommons.org/licenses/by/4.0/"><img src={ccheart} alt="Creative Commons attribution mark" className="cc-heart" /></a> {this.getYear()} Iris Berkeley.
-            Created on the native lands of the Arapaho, Cheyenne, and Ute communities. <a href="https://usdac.us/nativeland" target="_blank" rel="noopener noreferrer">Learn more.</a>
+            Created on the Native lands of the Arapaho, Cheyenne, and Ute communities. <a href="https://usdac.us/nativeland" target="_blank" rel="noopener noreferrer">Learn more.</a>
           </div>
       </div>
     );
