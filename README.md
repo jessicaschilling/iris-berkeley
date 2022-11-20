@@ -6,9 +6,7 @@
 
 This repo contains a basic website for Iris Berkeley. She's an event and radio DJ based in Boulder, Colorado USA. To learn more about her ... visit the [website](http://www.irisberkeley.com).
 
-It's deployed using [Netlify](https://irisberkeley.netlify.com/).
-
-It was bootstrapped from [Create React App](https://github.com/facebook/create-react-app), which is overkill, but whatever.
+Just simple HTML/CSS/JS for a simple site. It's deployed using [Netlify](https://irisberkeley.netlify.com/).
 
 ## License
 This work is licensed under a [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-nc-sa/4.0/).
