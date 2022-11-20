@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/static/css/main.f4626441.css",
+    "main.js": "/static/js/main.d2822cf5.js",
+    "static/media/instagram.png": "/static/media/instagram.fb0d6cb7fa52ae3c5e91.png",
+    "static/media/other-programs.jpg": "/static/media/other-programs.bf74106dfba0c6ecaeaf.jpg",
+    "static/media/interface-message-processor.png": "/static/media/interface-message-processor.caee763238c9fa7c0132.png",
+    "static/media/contact.png": "/static/media/contact.b31bd1a8a8398a6db9a4.png",
+    "static/media/modern-jetset.png": "/static/media/modern-jetset.dff445c4b28d67d81846.png",
+    "static/media/about.jpg": "/static/media/about.bbc72aeb04c05abeac41.jpg",
+    "static/media/afterfm.jpg": "/static/media/afterfm.02b57ec85cdf4cb87ddf.jpg",
+    "static/media/jetset-underground.png": "/static/media/jetset-underground.5dcd389c3c5a0a45b243.png",
+    "static/media/cc-heart.svg": "/static/media/cc-heart.ff4a71289dab3745896638a93578918b.svg",
+    "static/media/evil-eye.svg": "/static/media/evil-eye.4f6431d488784f289e073c060479a663.svg",
+    "index.html": "/index.html",
+    "main.f4626441.css.map": "/static/css/main.f4626441.css.map",
+    "main.d2822cf5.js.map": "/static/js/main.d2822cf5.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f4626441.css",
+    "static/js/main.d2822cf5.js"
+  ]
+}

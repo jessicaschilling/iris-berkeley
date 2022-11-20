@@ -1,0 +1,222 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #2C2A75;
+  font-family: 'Raleway', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body a:link, a:visited {
+  color: #71CBF2;
+}
+
+body a:hover, a:active {
+  color: #FFFFFF;
+}
+
+h1 {
+  text-transform: uppercase;
+  font-weight: 900;
+  font-size: calc(11.5vw);
+  margin: 0.1em 0 0 0;
+  padding: 0;
+}
+
+h2 {
+  margin: 0;
+  padding: 0;
+  color: #71CBF2;
+  text-transform: uppercase;
+  font-size: 1.3em;
+}
+
+.content-container {
+  text-align: center;
+  min-height: 100vh;
+  max-width: 900px;
+  color: #FFFFFF;
+  margin: 0 auto;
+  padding: 0px 15px;
+}
+
+#grid-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.grid-item-outer {
+  width: 33.3%;
+  height: auto;
+  max-width: 400px;
+}
+
+.grid-item-inner {
+  background-color: #71CBF2;
+  margin: 10px;
+}
+
+.grid-img-about {
+  background: url(img/about.jpg);
+  background-size: 100% 100%;
+  cursor: pointer;
+}
+
+.grid-img-afterfm {
+  background: url(img/afterfm.jpg);
+  background-size: 100% 100%;
+}
+
+.grid-img-modern-jetset {
+  background: url(img/modern-jetset.png);
+  background-size: 100% 100%;
+}
+
+.grid-img-interface-message-processor {
+  background: url(img/interface-message-processor.png);
+  background-size: 100% 100%;
+}
+
+.grid-img-jetset-underground {
+  background: url(img/jetset-underground.png);
+  background-size: 100% 100%;
+}
+
+.grid-img-other-programs {
+  background: url(img/other-programs.jpg);
+  background-size: 100% 100%;
+}
+
+.grid-img-instagram {
+  background: url(img/instagram.png);
+  background-size: 100% 100%;
+}
+
+.grid-img-contact {
+  background: url(img/contact.png);
+  background-size: 100% 100%;
+  cursor: pointer;
+}
+
+.grid-img-overlay {
+  background-color: #2C2A75;
+  max-width: 100%;
+  height: auto;
+  opacity: 0.8;
+  margin-bottom: -5px;
+}
+
+.grid-img-overlay:hover {
+  opacity: 0;
+}
+
+.evil-eye {
+  pointer-events: none;
+  margin: 10px 10px 5px 10px;
+}
+
+@keyframes evil-eye-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#text-about, #text-contact {
+  text-align: left;
+  font-size: 1.2em;
+  margin: 10px 10px 20px 10px;
+  display: none;
+}
+
+#text-about p:first-of-type, #text-contact p:first-of-type {
+ margin-top: 0;
+}
+
+#text-about em {
+  font-weight: 100;
+}
+
+#text-about img {
+  float: left;
+  width: calc(33.3% - 13px);
+  height: auto;
+  max-width: 400px;
+  margin: 0 20px 20px 0;
+}
+
+#text-contact p {
+  margin-top: 0;
+}
+
+#text-contact img {
+  float: right;
+  width: calc(33.3% - 13px);
+  height: auto;
+  max-width: 400px;
+  margin: 0 0 20px 20px;
+}
+
+button {
+  font-family: inherit;
+  font-size: 1.4em;
+  font-weight: 900;
+  margin-bottom: 10px;
+  padding: 0.2em 0.4em;
+  cursor: pointer;
+  text-transform: uppercase;
+  background: #71CBF2;
+  color: #2C2A75;
+  border: none;
+  border-radius: 10px;
+}
+
+button:hover,
+button:focus {
+  background: #FFFFFF;
+}
+
+#footer {
+  margin: 1.5em auto;
+  padding: 0 1em;
+  font-size: 0.8em;
+}
+
+.cc-heart {
+  width: 0.8em;
+}
+
+@media screen and (max-width: 400px) {
+  #text-about, #text-contact {
+    font-size: 1em;
+  }
+  #footer {
+    font-size: 0.7em;
+    margin: 0.7em auto;
+  }
+}
+
+@media screen and (min-width: 900px) {
+  h1 {
+    font-size: 118px;
+  }
+  #text-about, #text-contact {
+    font-size: 1.4em;
+  }
+  #footer {
+    font-size: 0.9em;
+   margin: 0.7em auto;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .evil-eye {
+    animation: evil-eye-spin infinite 20s linear;
+  }
+}
