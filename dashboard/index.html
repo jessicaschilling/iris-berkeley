@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <title>Radio 1190 Dashboard-o-Rama</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta http-equiv="refresh" content="30">
+    <!-- <meta http-equiv="refresh" content="30"> -->
 
     <head>
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,7 +13,7 @@
         <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css" />
 
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-        <script async src="//spinitron.com/static/js/widget.js"></script>          
+        <script defer src="https://spinitron.com/static/js/widget.js"></script>          
     </head>
 
     <style>
@@ -26,6 +26,7 @@
           color: #222;
           margin: 0;
           padding: 0;
+          overflow-x: hidden;
       }
       h2 {
           text-transform: uppercase;
@@ -76,6 +77,9 @@
         }
       }
       #mainContent {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 2vw);
         width: 82vw;
         padding: 1vw;
       }
@@ -91,8 +95,16 @@
         }
         iframe {
           width: 77vw;
-          height: 50vh;
+          transition: opacity 0.2s ease;
         }
+      }
+      #scheduleGrid {
+        flex: 1;
+        min-height: 0;
+        position: relative;
+      }
+      #scheduleGrid iframe {
+        height: calc(100% - 2.15vw);
       }
       #currentInfo, #scheduleGrid {
         margin-bottom: 1vw;
@@ -258,7 +270,7 @@
             <div id="hiddenStreamListeners">Current stream listeners: <span id="streamingNumberSource" class="cc_streaminfo" data-type="listeners" data-username="c8082">Loading ...</span></div>
             <div class="items">
               <div id="currentListeners">
-                <div id="currentListenersSquare"><span id="streamPlusTerrestrialDisplay" class="cc_streaminfo" data-type="listeners" data-username="c8082">880</span></div>
+                <div id="currentListenersSquare"><span id="streamPlusTerrestrialDisplay" class="cc_streaminfo" data-type="listeners" data-username="c8082">---</span></div>
                 Listeners
               </div>
               <div id="nowPlaying">
@@ -346,16 +358,125 @@
 <!--Stream provider external script - this gives listener streaming numbers that get upped to add terrestrial estimate-->
 <!-- script language="javascript" type="text/javascript" src="https://sc9.shoutcaststreaming.us:2199/system/streaminfo.js"></script-->
 
-<!--This script multiplies stream number x 40 to estimate stream + terrestrial listeners-->
+<!--This script updates listener counts from StreamGuys and estimates stream + terrestrial listeners-->
 <script type="text/javascript">
-  function rawListeners() {
-    alert(document.getElementById("streamingNumberSource").innerHTML);
+  var REFRESH_INTERVAL_MS = 30000;
+  var refreshTasks = [];
+
+  function registerRefreshTask(task) {
+    refreshTasks.push(task);
   }
-  function listenersPlusTerrestrial() {
-    var streamingNumber = Number(document.getElementById("streamingNumberSource").innerHTML);
-    var streamPlusTerrestrial = (streamingNumber*40)
-    // alert(streamPlusTerrestrial);
-    document.getElementById('streamPlusTerrestrialDisplay').innerHTML = streamPlusTerrestrial;
+
+  function runRefreshTasks() {
+    refreshTasks.forEach(function (task) {
+      task();
+    });
+  }
+
+  function getListenerCountFromStatus(data) {
+    var sources = data && data.icestats && data.icestats.source;
+
+    if (Array.isArray(sources)) {
+      sources = sources[0];
+    }
+
+    if (!sources || typeof sources.listeners !== "number") {
+      throw new Error("Listener count missing from status response");
+    }
+
+    return sources.listeners;
+  }
+
+  function fetchListenerCount() {
+    return fetch("https://kvcu.streamguys1.com/status-json.xsl", { cache: "no-store" })
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error("Listener request failed with status " + response.status);
+        }
+        return response.json();
+      })
+      .then(function (data) {
+        return getListenerCountFromStatus(data);
+      });
+  }
+
+  function refreshListenerEstimate() {
+    fetchListenerCount()
+      .then(function (listenerCount) {
+        var terrestrialMultiplier = 40;
+
+        document.getElementById("streamingNumberSource").textContent = listenerCount;
+        document.getElementById("streamPlusTerrestrialDisplay").textContent = listenerCount * terrestrialMultiplier;
+      })
+      .catch(function (error) {
+        console.error("Unable to refresh listener count", error);
+      });
+  }
+
+  function refreshScheduleGrid() {
+    var scheduleGrid = document.getElementById("scheduleGrid");
+    var scheduleFrame = scheduleGrid && scheduleGrid.querySelector("iframe");
+
+    if (!scheduleFrame || scheduleGrid.getAttribute("data-refreshing") === "yes") {
+      return;
+    }
+
+    scheduleGrid.setAttribute("data-refreshing", "yes");
+
+    var scheduleFrameRect = scheduleFrame.getBoundingClientRect();
+    var scheduleGridRect = scheduleGrid.getBoundingClientRect();
+    var nextFrame = scheduleFrame.cloneNode();
+    nextFrame.setAttribute("data-refreshing", "yes");
+    nextFrame.style.position = "absolute";
+    nextFrame.style.left = (scheduleFrameRect.left - scheduleGridRect.left) + "px";
+    nextFrame.style.top = (scheduleFrameRect.top - scheduleGridRect.top) + "px";
+    nextFrame.style.width = scheduleFrameRect.width + "px";
+    nextFrame.style.height = scheduleFrameRect.height + "px";
+    nextFrame.style.boxSizing = "border-box";
+    nextFrame.style.opacity = "0";
+    nextFrame.style.pointerEvents = "none";
+    nextFrame.style.zIndex = "1";
+
+    nextFrame.onload = function () {
+      setTimeout(function () {
+        window.requestAnimationFrame(function () {
+          nextFrame.style.opacity = "1";
+          scheduleFrame.style.opacity = "0";
+
+          setTimeout(function () {
+            scheduleFrame.remove();
+            nextFrame.removeAttribute("data-refreshing");
+            nextFrame.style.position = "";
+            nextFrame.style.left = "";
+            nextFrame.style.top = "";
+            nextFrame.style.width = "";
+            nextFrame.style.height = "";
+            nextFrame.style.boxSizing = "";
+            nextFrame.style.opacity = "";
+            nextFrame.style.pointerEvents = "";
+            nextFrame.style.zIndex = "";
+            scheduleGrid.removeAttribute("data-refreshing");
+          }, 250);
+        });
+      }, 3000);
+    };
+
+    scheduleGrid.appendChild(nextFrame);
+  }
+
+  function refreshSpinitronWidgets() {
+    Array.from(document.querySelectorAll(".spinitron-js-widget")).forEach(function (widget) {
+      widget.removeAttribute("data-already-initialized");
+    });
+
+    var scriptElement = document.createElement("script");
+    scriptElement.src = "https://spinitron.com/static/js/widget.js";
+    document.getElementsByTagName("head")[0].appendChild(scriptElement);
+  }
+
+  function startRefreshLoop() {
+    runRefreshTasks();
+    setInterval(runRefreshTasks, REFRESH_INTERVAL_MS);
   }
 </script>
 
@@ -370,7 +491,10 @@
     "1998-forever",
     "greetings, FCC inspectors!",
     "6800 watts of raw AM power",
-    "none of the hits, all of the time"
+    "none of the hits, all of the time",
+    "the rock show was a success",
+    "space dog is the coolest, right?",
+    "now broadcasting from a better basement"
   ];
   function newQuote() {
     var randomNumber = Math.floor(Math.random() * (quotes.length));
@@ -382,47 +506,43 @@
 <script type="text/javascript">
   function onLoadItems() {
     newQuote();
-    //setTimeout(listenersPlusTerrestrial, 3);
+    registerRefreshTask(refreshListenerEstimate);
+    registerRefreshTask(refreshScheduleGrid);
+    registerRefreshTask(refreshSpinitronWidgets);
+    registerRefreshTask(newQuote);
+    startRefreshLoop();
   }
 </script>
 
 <!--This script is for clock display, borrowed from https://www.zeitverschiebung.net/en/timezone/america--denver -->
 <script type="text/javascript">
   $(document).ready(function () {
-      $("div#clock").simpleClock(-6);
+      $("div#clock").simpleClock();
   });
   (function ($) {
-      $.fn.simpleClock = function (utc_offset) {
-          var language = "en";
-          switch (language) {
-              case "de":
-                  var weekdays = ["So.", "Mo.", "Di.", "Mi.", "Do.", "Fr.", "Sa."];
-                  var months = ["Jan.", "Feb.", "Mär.", "Apr.", "Mai", "Juni", "Juli", "Aug.", "Sep.", "Okt.", "Nov.", "Dez."];
-                  break;
-              default:
-                  var weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-                  var months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
-                  break;
-          }
+      $.fn.simpleClock = function () {
           var clock = this;
+          var denverClockFormatter = new Intl.DateTimeFormat("en-US", {
+              timeZone: "America/Denver",
+              hour: "numeric",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: true
+          });
+
           function getTime() {
-              var date = new Date();
-              var nowUTC = date.getTime() + date.getTimezoneOffset() * 60 * 1000;
-              date.setTime(nowUTC + utc_offset * 60 * 60 * 1000);
-              var hour = date.getHours();
-              if (language == "en") {
-                  suffix = hour >= 12 ? "PM" : "AM";
-                  hour = hour > 12 ? hour - 12 : hour;
-                  hour = hour == "00" ? 12 : hour;
-              }
+              var parts = denverClockFormatter.formatToParts(new Date());
+              var values = {};
+
+              parts.forEach(function (part) {
+                  values[part.type] = part.value;
+              });
+
               return {
-                  day: weekdays[date.getDay()],
-                  date: date.getDate(),
-                  month: months[date.getMonth()],
-                  year: date.getFullYear(),
-                  hour: appendZero(hour),
-                  minute: appendZero(date.getMinutes()),
-                  second: appendZero(date.getSeconds()),
+                  hour: appendZero(Number(values.hour)),
+                  minute: values.minute,
+                  second: values.second,
+                  suffix: values.dayPeriod
               };
           }
           function appendZero(num) {
@@ -437,10 +557,10 @@
               $(clock)
                   .find(".time")
                   .html("<span class='hour'>" + now.hour + "</span>:<span class='minute'>" + now.minute + "</span>:<span class='second'>" + now.second + "</span>");
-              if (typeof suffix != "undefined") {
+              if (now.suffix) {
                   $(clock)
                       .find(".time")
-                      .append("<strong>" + suffix + "</strong>");
+                      .append("<strong>" + now.suffix + "</strong>");
               }
           }
           var clock_id = $(this).attr("id");
