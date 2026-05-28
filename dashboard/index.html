@@ -361,15 +361,25 @@
 <!--This script updates listener counts from StreamGuys and estimates stream + terrestrial listeners-->
 <script type="text/javascript">
   var REFRESH_INTERVAL_MS = 30000;
+  var SCHEDULE_GRID_URL = "https://widgets.spinitron.com/widget/schedule?station=kvcu&view=agendaWeek";
+  var SCHEDULE_VISIBLE_REFRESH_DELAY_MS = 1000;
   var refreshTasks = [];
+  var scheduleVisibilityRefreshTimer;
 
-  function registerRefreshTask(task) {
-    refreshTasks.push(task);
+  function registerRefreshTask(task, runImmediately) {
+    refreshTasks.push({
+      task: task,
+      runImmediately: runImmediately !== false
+    });
   }
 
-  function runRefreshTasks() {
-    refreshTasks.forEach(function (task) {
-      task();
+  function runRefreshTasks(runImmediateTasksOnly) {
+    refreshTasks.forEach(function (refreshTask) {
+      if (runImmediateTasksOnly && !refreshTask.runImmediately) {
+        return;
+      }
+
+      refreshTask.task();
     });
   }
 
@@ -417,15 +427,25 @@
     var scheduleGrid = document.getElementById("scheduleGrid");
     var scheduleFrame = scheduleGrid && scheduleGrid.querySelector("iframe");
 
-    if (!scheduleFrame || scheduleGrid.getAttribute("data-refreshing") === "yes") {
+    if (
+      document.hidden ||
+      !scheduleFrame ||
+      scheduleGrid.getAttribute("data-refreshing") === "yes"
+    ) {
+      return;
+    }
+
+    var scheduleFrameRect = scheduleFrame.getBoundingClientRect();
+    var scheduleGridRect = scheduleGrid.getBoundingClientRect();
+
+    if (!scheduleFrameRect.width || !scheduleFrameRect.height) {
       return;
     }
 
     scheduleGrid.setAttribute("data-refreshing", "yes");
 
-    var scheduleFrameRect = scheduleFrame.getBoundingClientRect();
-    var scheduleGridRect = scheduleGrid.getBoundingClientRect();
     var nextFrame = scheduleFrame.cloneNode();
+    nextFrame.src = SCHEDULE_GRID_URL + "&refresh=" + Date.now();
     nextFrame.setAttribute("data-refreshing", "yes");
     nextFrame.style.position = "absolute";
     nextFrame.style.left = (scheduleFrameRect.left - scheduleGridRect.left) + "px";
@@ -439,6 +459,12 @@
 
     nextFrame.onload = function () {
       setTimeout(function () {
+        if (document.hidden) {
+          nextFrame.remove();
+          scheduleGrid.removeAttribute("data-refreshing");
+          return;
+        }
+
         window.requestAnimationFrame(function () {
           nextFrame.style.opacity = "1";
           scheduleFrame.style.opacity = "0";
@@ -475,9 +501,20 @@
   }
 
   function startRefreshLoop() {
-    runRefreshTasks();
+    runRefreshTasks(true);
     setInterval(runRefreshTasks, REFRESH_INTERVAL_MS);
   }
+
+  function refreshScheduleGridWhenVisible() {
+    if (document.hidden) {
+      return;
+    }
+
+    clearTimeout(scheduleVisibilityRefreshTimer);
+    scheduleVisibilityRefreshTimer = setTimeout(refreshScheduleGrid, SCHEDULE_VISIBLE_REFRESH_DELAY_MS);
+  }
+
+  document.addEventListener("visibilitychange", refreshScheduleGridWhenVisible);
 </script>
 
 <!--This script randomizes header slogans-->
@@ -507,9 +544,10 @@
   function onLoadItems() {
     newQuote();
     registerRefreshTask(refreshListenerEstimate);
-    registerRefreshTask(refreshScheduleGrid);
-    registerRefreshTask(refreshSpinitronWidgets);
-    registerRefreshTask(newQuote);
+    registerRefreshTask(refreshScheduleGrid, false);
+    registerRefreshTask(refreshSpinitronWidgets, false);
+    registerRefreshTask(newQuote, false);
+    refreshScheduleGridWhenVisible();
     startRefreshLoop();
   }
 </script>
